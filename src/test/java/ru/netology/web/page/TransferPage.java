@@ -24,6 +24,10 @@ public class TransferPage {
         actionTransfer.click();
         return new TransferPage();
     }
+    public TransferPage cancelDataFilling () {
+        actionCancel.click();
+        return new TransferPage();
+    }
     public static int balanceMinusAmount(int balance, int amount) {
         int balanceMinus = balance - amount;
         if (balanceMinus < 0) {

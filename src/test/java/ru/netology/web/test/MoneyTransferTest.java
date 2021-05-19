@@ -4,9 +4,8 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import ru.netology.web.data.DataHelper;
 import ru.netology.web.page.LoginPage;
-import ru.netology.web.page.TransferPage;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MoneyTransferTest {
     @Test
@@ -21,18 +20,17 @@ public class MoneyTransferTest {
         val initialSecondCardBalance = dashboardPage.getCurrentSecondCardBalance();
         val changeFirstCard = dashboardPage.firstCard();
         changeFirstCard.dataFilling(DataHelper.getSecondCardInfo(), amount);
-        val balanceAfterTransferFirstCard = TransferPage.balancePlusAmount(initialFirstCardBalance, amount);
-        val balanceAfterTransferSecondCard = TransferPage.balanceMinusAmount(initialSecondCardBalance, amount);
-        val currentFirstCardBalance = dashboardPage.getCurrentFirstCardBalance();
-        val currentSecondCardBalance = dashboardPage.getCurrentSecondCardBalance();
-        assertEquals(balanceAfterTransferFirstCard, currentFirstCardBalance);
-        assertEquals(balanceAfterTransferSecondCard, currentSecondCardBalance);
+        val firstCardBalanceAfterTransfer = dashboardPage.getCurrentFirstCardBalance();
+        val secondCardBalanceAfterTransfer = dashboardPage.getCurrentSecondCardBalance();
+        assertEquals(firstCardBalanceAfterTransfer, initialFirstCardBalance + amount);
+        assertEquals(secondCardBalanceAfterTransfer, initialSecondCardBalance - amount);
 
 
     }
+
     @Test
     void shouldTransferOnSecondCard() {
-        int amount = 5000;
+        int amount = 2000;
         val loginPage = new LoginPage();
         val authInfo = DataHelper.getAuthInfo();
         val verificationPage = loginPage.validLogin(authInfo);
@@ -42,14 +40,52 @@ public class MoneyTransferTest {
         val initialSecondCardBalance = dashboardPage.getCurrentSecondCardBalance();
         val changeSecondCard = dashboardPage.secondCard();
         changeSecondCard.dataFilling(DataHelper.getFirstCardInfo(), amount);
-        val balanceAfterTransferSecondCard = TransferPage.balancePlusAmount(initialSecondCardBalance, amount);
-        val balanceAfterTransferFirstCard = TransferPage.balanceMinusAmount(initialFirstCardBalance, amount);
-        val currentSecondCardBalance = dashboardPage.getCurrentSecondCardBalance();
-        val currentFirstCardBalance = dashboardPage.getCurrentFirstCardBalance();
-        assertEquals(balanceAfterTransferFirstCard, currentFirstCardBalance);
-        assertEquals(balanceAfterTransferSecondCard, currentSecondCardBalance);
+        val secondCardBalanceAfterTransfer = dashboardPage.getCurrentSecondCardBalance();
+        val firstCardBalanceAfterTransfer = dashboardPage.getCurrentFirstCardBalance();
+        assertEquals(firstCardBalanceAfterTransfer, initialFirstCardBalance - amount);
+        assertEquals(secondCardBalanceAfterTransfer, initialSecondCardBalance + amount);
 
 
     }
+    @Test
+    void shouldTransferCancel() {
+        int amount = 500;
+        val loginPage = new LoginPage();
+        val authInfo = DataHelper.getAuthInfo();
+        val verificationPage = loginPage.validLogin(authInfo);
+        val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        val dashboardPage = verificationPage.validVerify(verificationCode);
+        val initialFirstCardBalance = dashboardPage.getCurrentFirstCardBalance();
+        val initialSecondCardBalance = dashboardPage.getCurrentSecondCardBalance();
+        val changeFirstCard = dashboardPage.firstCard();
+        changeFirstCard.cancelDataFilling();
+        val firstCardBalanceAfterCancel = dashboardPage.getCurrentFirstCardBalance();
+        val secondCardBalanceAfterCancel = dashboardPage.getCurrentSecondCardBalance();
+        assertEquals(firstCardBalanceAfterCancel, initialFirstCardBalance);
+        assertEquals(secondCardBalanceAfterCancel, initialSecondCardBalance);
+
+    }
+
+    @Test
+    void shouldTransferUnderOverAmount() {
+        int amount = 20000;
+        val loginPage = new LoginPage();
+        val authInfo = DataHelper.getAuthInfo();
+        val verificationPage = loginPage.validLogin(authInfo);
+        val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        val dashboardPage = verificationPage.validVerify(verificationCode);
+        val initialFirstCardBalance = dashboardPage.getCurrentFirstCardBalance();
+        val initialSecondCardBalance = dashboardPage.getCurrentSecondCardBalance();
+        val changeFirstCard = dashboardPage.firstCard();
+        changeFirstCard.dataFilling(DataHelper.getSecondCardInfo(), amount);
+        val firstCardBalanceAfterTransfer = dashboardPage.getCurrentFirstCardBalance();
+        val secondCardBalanceAfterTransfer = dashboardPage.getCurrentSecondCardBalance();
+        assertEquals(firstCardBalanceAfterTransfer, initialFirstCardBalance + amount);
+        assertEquals(secondCardBalanceAfterTransfer, initialSecondCardBalance - amount);
+
+    }
+
+
+
 
 }
